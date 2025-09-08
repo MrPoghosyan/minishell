@@ -1,4 +1,6 @@
 # Prerequisites
+.vscode/
+.DS_Store
 *.d
 
 # Object files
