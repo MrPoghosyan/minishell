@@ -12,6 +12,7 @@
 # include <sys/wait.h>
 # include <unistd.h>
 
+
 typedef enum e_toktype
 {
 	T_PIPE,
@@ -25,6 +26,12 @@ typedef enum e_toktype
 	T_LIMITER,
 	T_WORD
 }				t_toktype;
+
+typedef struct s_cmd
+{
+	char	*cmd;
+	struct s_commands next;
+} t_cmd
 
 typedef struct s_token
 {

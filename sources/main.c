@@ -29,7 +29,7 @@ static char	*print_prompt(void)
 	return (line);
 }
 
-static int	fork_proces(char *line, char **envp)
+static int	fork_proces(t_cmd cmd, char **envp)
 {
 	int		status;
 	pid_t	pid;
@@ -42,7 +42,7 @@ static int	fork_proces(char *line, char **envp)
 		return (1);
 	}
 	else if (pid == 0)
-		exec_command(line, envp);
+		exec_command(, envp);
 	else
 		waitpid(pid, &status, 0);
 	return (0);
@@ -51,6 +51,7 @@ static int	fork_proces(char *line, char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	char	*line;
+	t_cmd cmd;
 
 	if (argc != 1)
 		return (1);
@@ -59,7 +60,8 @@ int	main(int argc, char **argv, char **envp)
 		line = print_prompt();
 		if (!line)
 			break ;
-		if (fork_proces(line, envp) == 1)
+		cmd = ft_pars(line);
+		if (fork_proces(cmd, envp) == 1)
 			continue ;
 		free(line);
 	}

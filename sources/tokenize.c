@@ -12,7 +12,8 @@
 
 #include "header.h"
 
-extern int			g_exit_status;
+extern int	g_exit_status;
+
 
 static t_toktype	find_type(char *str, t_token *tokens, int i)
 {

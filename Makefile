@@ -7,7 +7,7 @@ LDFLAGS = -L$(LIBFT_DIR) -lft -lreadline
 LIBFT_DIR = Libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
-SRC = main.c my_shell.c sources/utils.c sources/tokenize.c 
+SRC = sources/main.c sources/my_shell.c #sources/utils.c sources/tokenize.c 
 OBJ = $(SRC:.c=.o)
 
 all: $(LIBFT) $(NAME)
