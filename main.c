@@ -1,11 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: natalieyan <natalieyan@student.42.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/06 13:06:28 by natalieyan        #+#    #+#             */
+/*   Updated: 2025/09/06 13:35:06 by natalieyan       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "header.h"
 
 static char	*print_prompt(void)
 {
-	const char	*prompt = "\033[1;35m┌──[\033[1;36mMyBash\033[1;35m]"
-		"\n└─\033[1;32m$ \033[0m";
-	char		*line;
+	char	*line;
 
+	const char *prompt = "\033[1;35m┌──[\033[1;36mMyBash\033[1;35m]"
+		"\n└─\033[1;32m$ \033[0m";
 	line = readline(prompt);
 	if (!line)
 	{
@@ -54,4 +66,4 @@ int	main(int argc, char **argv, char **envp)
 	rl_clear_history();
 	return (0);
 }
-//int fd = open(stdout_filename, O_WRONLY | O_CREAT | O_TRUNC | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+// int fd = open(stdout_filename,O_WRONLY | O_CREAT | O_TRUNC | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
