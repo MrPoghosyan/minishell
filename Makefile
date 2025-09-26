@@ -1,34 +1,99 @@
-NAME = minishell
+# ========================== PROJECT ========================== #
+NAME        = minishell
+CC          = cc
+CFLAGS      = -Wall -Wextra -Werror -std=c99
+MKDIR       = mkdir -p
 
-CC = cc
-CFLAGS = -Wall #-Wextra -Werror
-LDFLAGS = -L$(LIBFT_DIR) -lft -lreadline
+# ========================== DIRECTORIES ========================== #
+LIBFT_DIR       = ./libft
+SRC_DIR         = ./src
+OBJ_DIR         = ./obj
+EXPANSION_DIR   = expansion
+UTIL_DIR        = utils
+BUILTIN_DIR     = builtins
+TOKEN_DIR       = tokenizer
+ENV_DIR         = env
+AST_DIR         = ast
 
-LIBFT_DIR = Libft
-LIBFT = $(LIBFT_DIR)/libft.a
+# ========================== OS SPECIFIC ========================== #
+UNAME_S := $(shell uname -s)
 
-SRC = sources/main.c sources/my_shell.c #sources/utils.c sources/tokenize.c 
-OBJ = $(SRC:.c=.o)
+ifeq ($(UNAME_S),Darwin)
+    # macOS Homebrew GNU Readline
+    ifeq ($(shell uname -m),arm64)
+        # Apple Silicon
+        READLINE_PATH := /opt/homebrew/opt/readline
+    else
+        # Intel
+        READLINE_PATH := /usr/local/opt/readline
+    endif
+    READLINE_INCLUDE := -I$(READLINE_PATH)/include
+    READLINE_LIB     := -L$(READLINE_PATH)/lib -lreadline -lncurses
+else
+    # Linux
+    READLINE_INCLUDE := -I/usr/include
+    READLINE_LIB     := -lreadline -lncurses
+endif
 
-all: $(LIBFT) $(NAME)
+INCLUDES = -I$(LIBFT_DIR) -I./inc $(READLINE_INCLUDE)
+LINKERS  = -L$(LIBFT_DIR) -lft $(READLINE_LIB) -ltermcap
+
+# ========================== FILES ========================== #
+AST_SRCS        = ast.c exec.c ast_utils.c ast_redir.c ast_cmd.c \
+                  exec_builtins.c exec_redir.c exec_pipe.c ast_sub.c \
+                  exec_handlers.c exec_cmd.c exec_non_builtin.c
+
+EXPANSION_SRCS  = expand_var_name.c expand_wildcards.c expand_text.c wildcard_utils.c
+
+UTIL_SRCS       = print.c signals.c validations.c std_fd_ctrl.c helpers.c dynamic_str.c \
+                  char_arr.c cmd_path.c cmd.c handle_redir.c ast_clear.c expansion.c \
+                  heredoc.c redir.c remove_quotes.c exec.c
+
+BUILTIN_SRCS    = exit.c env.c export.c echo.c pwd.c cd.c unset.c
+
+TOKEN_SRCS      = tokenization_utils.c tokenizer.c
+
+ENV_SRCS        = ht.c ht_resize.c ht_utils.c ht_hash_utils.c ht_clear.c
+
+SRC_FILES       = $(addprefix $(EXPANSION_DIR)/, $(EXPANSION_SRCS)) \
+                  $(addprefix $(UTIL_DIR)/, $(UTIL_SRCS)) \
+                  $(addprefix $(BUILTIN_DIR)/, $(BUILTIN_SRCS)) \
+                  $(addprefix $(TOKEN_DIR)/, $(TOKEN_SRCS)) \
+                  $(addprefix $(ENV_DIR)/, $(ENV_SRCS)) \
+                  $(addprefix $(AST_DIR)/, $(AST_SRCS)) \
+                  main.c
+
+SRCS            = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
+OBJS            = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
+LIBFT           = $(LIBFT_DIR)/libft.a
+
+# ========================== RULES ========================== #
+all: $(NAME)
+
+$(NAME): $(OBJ_DIR) $(LIBFT) $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(INCLUDES) $(LINKERS) -o $@
+
+$(OBJ_DIR):
+	$(MKDIR) $@
 
 $(LIBFT):
 	$(MAKE) -C $(LIBFT_DIR)
 
-$(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) $(LDFLAGS) -o $(NAME)
-
-%.o: %.c
-	$(CC) $(CFLAGS) -I. -I$(LIBFT_DIR) -c $< -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(MKDIR) $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	$(MAKE) clean -C $(LIBFT_DIR)
-	rm -f $(OBJ)
+	rm -rf $(OBJS) $(OBJ_DIR)
+	$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
-	$(MAKE) fclean -C $(LIBFT_DIR)
 	rm -f $(NAME)
+	$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+bonus:
+	@echo "No bonus files defined."
+
+.PHONY: all clean fclean re bonus

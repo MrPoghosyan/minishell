@@ -1,0 +1,95 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exit.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vahstepa <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/05 15:21:22 by vahstepa          #+#    #+#             */
+/*   Updated: 2025/09/05 15:21:23 by vahstepa         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+static int	check_int_limit(const char *str)
+{
+	size_t			i;
+	int				sign;
+	long long int	num;
+	int				seen;
+	int				prev_num;
+
+	i = 0;
+	sign = 1;
+	num = 0;
+	seen = 0;
+	if (str[i] == '-' || str[i] == '+')
+		if (str[i++] == '-')
+			sign = -1;
+	while (ft_isdigit(str[i]))
+	{
+		seen = 1;
+		prev_num = num;
+		num = num * 10 + (sign * (str[i++] - '0'));
+		if ((sign == 1 && num < prev_num) || (sign == -1 && num > prev_num))
+			return (0);
+	}
+	if (str[i] || !seen)
+		return (0);
+	return (1);
+}
+
+static int	is_numeric(char *status)
+{
+	char	*trimmed;
+	int		numeric;
+	int		i;
+
+	trimmed = ft_strtrim(status, " \t\n\v\r\f");
+	i = 0;
+	if (trimmed[i] == '+' || trimmed[i] == '-')
+		++i;
+	while (ft_isdigit(trimmed[i]))
+		++i;
+	numeric = (check_int_limit(trimmed) && trimmed[i] == 0);
+	free(trimmed);
+	return (numeric);
+}
+
+static void	exit_with_no_args(t_ht *env)
+{
+	char			*status_str;
+	unsigned char	status;
+
+	status_str = ht_get(env, "?");
+	status = (unsigned char)ft_atoi(status_str);
+	free(status_str);
+	exit(status);
+}
+
+int	ft_exit(char **args, t_ht *env)
+{
+	unsigned char	status;
+	int				i;
+
+	(void)env;
+	i = 0;
+	args += 1;
+	if (!ht_get(env, "#IS_SUBSHELL") && !ht_get(env, "#ISNOTATTY"))
+		ft_putendl_fd("exit", 1);
+	while (args[i])
+		++i;
+	if (!*args)
+		exit_with_no_args(env);
+	if (*args && !is_numeric(*args))
+	{
+		print_error("minishell: exit: ", *args, ": numeric argument required");
+		exit(2);
+	}
+	if (i > 1)
+		return (ft_putendl_fd("minishell: exit: too many arguments", 2), 1);
+	status = (unsigned char)ft_atoi(args[0]);
+	exit(status);
+	return (status);
+}
