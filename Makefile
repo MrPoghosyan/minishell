@@ -1,7 +1,7 @@
 # ========================== PROJECT ========================== #
 NAME        = minishell
 CC          = cc
-CFLAGS      = -Wall -Wextra -Werror -std=c99
+CFLAGS      = -Wall -Wextra -Werror
 MKDIR       = mkdir -p
 
 # ========================== DIRECTORIES ========================== #

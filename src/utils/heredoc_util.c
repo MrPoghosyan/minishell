@@ -54,5 +54,6 @@ int	handle_heredoc_status(int status, t_heredoc_ctx *ctx, t_ht *env)
 		ht_set(env, ft_strdup("?"), ft_strdup("130"));
 		return (0);
 	}
+	ht_set(env, ft_strdup("?"), ft_strdup("0"));
 	return (1);
 }
