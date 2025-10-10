@@ -1,25 +1,9 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vahstepa <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/05 15:24:14 by vahstepa          #+#    #+#             */
-/*   Updated: 2025/09/05 15:24:15 by vahstepa         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "minishell.h"
-
-extern int	g_signal_int;
 
 void	process_prompt(char *line, t_ht *map)
 {
 	t_list	*token_lst;
 	t_ast	*ast;
-	int		status;
-	char	*status_str;
 
 	if (*line == '\0')
 		return (free(line));
@@ -33,9 +17,13 @@ void	process_prompt(char *line, t_ht *map)
 	ft_lstclear(&token_lst, del_token);
 	if (!ast)
 		return (ht_set(map, ft_strdup("?"), ft_strdup("2")));
-	status = execute_ast(&ast, &ast, map);
-	status_str = ft_itoa((unsigned char)status);
-	ht_set(map, ft_strdup("?"), status_str);
+	if (g_signal_int)
+	{
+		ht_set(map, ft_strdup("?"), ft_strdup("130"));
+		g_signal_int = 0;
+		return ;
+	}
+	handle_ast(ast, map);
 }
 
 int	process_not_tty_prompt(t_ht *map)
@@ -48,8 +36,6 @@ int	process_not_tty_prompt(t_ht *map)
 	while (line)
 	{
 		g_signal_int = 0;
-		if (!line)
-			return (0);
 		process_prompt(line, map);
 		unlink_heredocs();
 		status = (unsigned char)ft_atoi(ht_get(map, "?"));

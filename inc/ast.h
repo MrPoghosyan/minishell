@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ast.h                                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vahstepa <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/05 14:52:50 by vahstepa          #+#    #+#             */
-/*   Updated: 2025/09/05 14:52:54 by vahstepa         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef AST_H
 # define AST_H
 
@@ -37,5 +25,6 @@ int		handle_or_exec(t_ast **root, t_ast **node, t_ht *env);
 int		handle_and_exec(t_ast **root, t_ast **node, t_ht *env);
 int		handle_pipe_exec(t_ast **root, t_ast **node, t_ht *env);
 void	*free_ast_node(t_ast **node);
+int		handle_ast(t_ast *ast, t_ht *map);
 
 #endif

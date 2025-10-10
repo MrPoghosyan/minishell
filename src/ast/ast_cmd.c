@@ -1,16 +1,17 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ast_cmd.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vahstepa <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/05 15:19:35 by vahstepa          #+#    #+#             */
-/*   Updated: 2025/09/05 15:19:37 by vahstepa         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "minishell.h"
+
+int	handle_ast(t_ast *ast, t_ht *map)
+{
+	int		status;
+	char	*status_str;
+
+	status = execute_ast(&ast, &ast, map);
+	status_str = ft_itoa((unsigned char)status);
+	if (!status_str)
+		return (ht_set(map, ft_strdup("?"), ft_strdup("1")), 1);
+	ht_set(map, ft_strdup("?"), status_str);
+	return (0);
+}
 
 static ssize_t	process_cmd_tokens(t_ast *it, t_list **token_lst,
 	t_list **token_it, t_ht *env)

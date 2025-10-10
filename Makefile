@@ -1,7 +1,7 @@
 # ========================== PROJECT ========================== #
 NAME        = minishell
 CC          = cc
-CFLAGS      = -Wall -Wextra -Werror -std=c99
+CFLAGS      = -Wall -Wextra -Werror
 MKDIR       = mkdir -p
 
 # ========================== DIRECTORIES ========================== #
@@ -41,13 +41,13 @@ LINKERS  = -L$(LIBFT_DIR) -lft $(READLINE_LIB) -ltermcap
 # ========================== FILES ========================== #
 AST_SRCS        = ast.c exec.c ast_utils.c ast_redir.c ast_cmd.c \
                   exec_builtins.c exec_redir.c exec_pipe.c ast_sub.c \
-                  exec_handlers.c exec_cmd.c exec_non_builtin.c
+                  exec_handlers.c exec_cmd.c exec_non_builtin.c exec_cmd_util.c
 
 EXPANSION_SRCS  = expand_var_name.c expand_wildcards.c expand_text.c wildcard_utils.c
 
 UTIL_SRCS       = print.c signals.c validations.c std_fd_ctrl.c helpers.c dynamic_str.c \
                   char_arr.c cmd_path.c cmd.c handle_redir.c ast_clear.c expansion.c \
-                  heredoc.c redir.c remove_quotes.c exec.c
+                  heredoc.c redir.c remove_quotes.c exec.c heredoc_util.c
 
 BUILTIN_SRCS    = exit.c env.c export.c echo.c pwd.c cd.c unset.c
 

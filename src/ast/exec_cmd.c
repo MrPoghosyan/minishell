@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   exec_cmd.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vahstepa <vahstepa@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/05 15:20:22 by vahstepa          #+#    #+#             */
-/*   Updated: 2025/09/26 14:22:39 by vahstepa         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "minishell.h"
 
 int	find_first_non_empty(t_char_arr *expanded, t_ast **node, t_ht *env)
@@ -89,23 +77,22 @@ static int	wait_and_handle_signals(pid_t pid)
 
 int	exec_cmd(t_ast **node, t_ht *env)
 {
-	pid_t	pid;
+	pid_t			pid;
+	int				status;
+	struct termios	tmodes;
 
+	tcgetattr(STDIN_FILENO, &tmodes);
 	pid = fork();
 	if (pid == 0)
-	{
-		if (handle_redirections((*node)->cmd, env))
-			exit(1);
-		if ((*node)->token == T_CMD)
-			exec_non_builtin(node, env);
-		exit(0);
-	}
+		child_process(node, env);
 	if (pid < 0)
 	{
 		perror("minishell: fork");
 		return (-1);
 	}
-	return (wait_and_handle_signals(pid));
+	status = wait_and_handle_signals(pid);
+	handle_parent_process(pid, &tmodes);
+	return (status);
 }
 
 int	execute_command(t_ast **node, t_ht *env)

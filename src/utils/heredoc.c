@@ -1,106 +1,132 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   heredoc.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vahstepa <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/05 15:25:54 by vahstepa          #+#    #+#             */
-/*   Updated: 2025/09/05 15:25:55 by vahstepa         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "minishell.h"
 
-static char	*get_heredoc_name(void)
+char *get_heredoc_name(void)
 {
-	char	*heredoc;
-	char	*sym;
-	int		i;
+    char *heredoc;
+    char *sym;
+    int i = 0;
 
-	i = 0;
-	while (1)
-	{
-		sym = ft_itoa(i);
-		heredoc = ft_strjoin(".heredoc_", sym);
-		free(sym);
-		if (!heredoc)
-			return (NULL);
-		if (access(heredoc, F_OK) != 0)
-			break ;
-		free(heredoc);
-		++i;
-	}
-	return (heredoc);
+    while (1)
+    {
+        sym = ft_itoa(i);
+        heredoc = ft_strjoin(".heredoc_", sym);
+        free(sym);
+        if (!heredoc)
+            return NULL;
+        if (access(heredoc, F_OK) != 0)
+            break;
+        free(heredoc);
+        ++i;
+    }
+    return heredoc;
 }
 
-static void	process_heredoc_line(t_heredoc_ctx *ctx, char *line, t_ht *env)
+void process_heredoc(t_heredoc_ctx *ctx, t_ht *env)
 {
-	int		i;
-	char	*key;
-	char	*value;
-
-	i = -1;
-	while (line[++i])
-	{
-		if (!ctx->contain_quotes && line[i] == '$')
-		{
-			key = extract_var_name(line, &i);
-			if (!key)
-				continue ;
-			value = ht_get(env, key);
-			free(key);
-			if (!value)
-				continue ;
-			ft_putstr_fd(value, ctx->fd);
-		}
-		else
-			ft_putchar_fd(line[i], ctx->fd);
-	}
-	ft_putchar_fd('\n', ctx->fd);
+    char *line;
+    while (1)
+    {
+        line = readline("> ");
+        if (!line || g_signal_int)
+        {
+            free(line);
+            break;
+        }
+        else if (!ft_strcmp(line, *ctx->target.arr))
+        {
+            free(line);
+            break;
+        }
+        process_heredoc_line(ctx, line, env);
+        free(line);
+    }
 }
 
-static void	process_heredoc(t_heredoc_ctx *ctx, t_ht *env)
+void process_heredoc_line(t_heredoc_ctx *ctx, char *line, t_ht *env)
 {
-	bool	is_not_a_tty;
-	char	*line;
+    int i = -1;
+    char *key;
+    char *value;
 
-	is_not_a_tty = ht_get(env, "#ISNOTATTY");
-	while (1)
-	{
-		if (is_not_a_tty)
-			line = get_prompt_line();
-		else
-			line = readline("> ");
-		if (!line)
-			break ;
-		else if (!ft_strcmp(line, *ctx->target.arr))
-		{
-			free(line);
-			break ;
-		}
-		process_heredoc_line(ctx, line, env);
-		free(line);
-	}
+    while (line[++i])
+    {
+        if (!ctx->contain_quotes && line[i] == '$')
+        {
+            key = extract_var_name(line, &i);
+            if (!key) continue;
+            value = ht_get(env, key);
+            free(key);
+            if (!value) continue;
+            ft_putstr_fd(value, ctx->fd);
+        }
+        else
+            ft_putchar_fd(line[i], ctx->fd);
+    }
+    ft_putchar_fd('\n', ctx->fd);
 }
 
-char	*handle_heredoc(char *delimiter, t_ht *env)
+static void handle_heredoc_child(t_heredoc_ctx *ctx, t_ht *env)
 {
-	t_heredoc_ctx	ctx;
+    struct sigaction sa;
+    struct sigaction sa_quit;
 
-	ctx.heredoc = get_heredoc_name();
-	ctx.fd = open(ctx.heredoc, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	ctx.target.size = 1;
-	ctx.target.arr = (char **)ft_calloc(2, sizeof (char *));
-	if (!ctx.target.arr)
-		return (NULL);
-	ctx.target.arr[0] = ft_strdup(delimiter);
-	free(delimiter);
-	ctx.contain_quotes = (ft_strchr(*ctx.target.arr, '\'')
-			|| ft_strchr(*ctx.target.arr, '"'));
-	remove_quotes(&ctx.target);
-	process_heredoc(&ctx, env);
-	free_char_arr(&ctx.target);
-	close(ctx.fd);
-	return (ctx.heredoc);
+    g_signal_int = 0;
+
+    // SIGINT → heredoc_sigint
+    sa.sa_handler = handle_heredoc_sigint;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, NULL);
+
+    // SIGQUIT → ignore
+    sa_quit.sa_handler = SIG_IGN;
+    sigemptyset(&sa_quit.sa_mask);
+    sa_quit.sa_flags = 0;
+    sigaction(SIGQUIT, &sa_quit, NULL);
+
+    process_heredoc(ctx, env);
+    close(ctx->fd);
+    if (g_signal_int)
+        exit(130);
+    exit(0);
+}
+
+char *handle_heredoc(char *delimiter, t_ht *env)
+{
+    t_heredoc_ctx ctx;
+    pid_t pid;
+    int status;
+    struct sigaction sa_ignore, sa_old;
+
+    if (!init_heredoc_ctx(&ctx, delimiter))
+        return NULL;
+
+    g_signal_int = 0;
+
+    pid = fork();
+    if (pid == 0)
+        handle_heredoc_child(&ctx, env);
+
+    // Ignore Ctrl+C while waiting for heredoc child
+    sa_ignore.sa_handler = SIG_IGN;
+    sigemptyset(&sa_ignore.sa_mask);
+    sa_ignore.sa_flags = 0;
+    sigaction(SIGINT, &sa_ignore, &sa_old);
+
+    waitpid(pid, &status, 0);
+
+    // Restore signal handler
+    sigaction(SIGINT, &sa_old, NULL);
+
+    // Check heredoc result
+    if (!handle_heredoc_status(status, &ctx, env))
+    {
+        write(STDOUT_FILENO, "\n", 1);
+        rl_replace_line("", 0);
+        rl_on_new_line();
+        rl_redisplay();
+        return NULL;
+    }
+
+    return ctx.heredoc;
 }

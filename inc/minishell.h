@@ -1,19 +1,10 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   minishell.h                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vahstepa <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/05 14:54:25 by vahstepa          #+#    #+#             */
-/*   Updated: 2025/09/05 14:55:22 by vahstepa         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
 # define _POSIX_C_SOURCE 200809L
+
+extern int	g_signal_int;
+
 # include <stdio.h>
 # include <stdlib.h>
 # include <signal.h>
