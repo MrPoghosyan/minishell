@@ -45,15 +45,15 @@ int	handle_heredoc_status(int status, t_heredoc_ctx *ctx, t_ht *env)
 {
 	free_char_arr(&ctx->target);
 	close(ctx->fd);
-	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
-		g_signal_int = 1;
-	if (g_signal_int)
+	if ((WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+			|| (WIFEXITED(status) && WEXITSTATUS(status) == 130))
 	{
+		g_signal_int = 1;
 		unlink(ctx->heredoc);
 		free(ctx->heredoc);
 		ht_set(env, ft_strdup("?"), ft_strdup("130"));
-		return (0);
+		return (130);
 	}
 	ht_set(env, ft_strdup("?"), ft_strdup("0"));
-	return (1);
+	return (0);
 }
