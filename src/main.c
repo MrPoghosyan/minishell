@@ -49,15 +49,16 @@ int	process_not_tty_prompt(t_ht *map)
 
 int	process_tty_prompt(t_ht *map)
 {
-	char			*line;
+	char		*line;
+	const char	*prompt = "\033[1;35m┌──[\033[1;36mMinishell\033[1;35m]\n"
+		"└─\033[1;32m$ \033[0m";
 
 	while (1)
 	{
-		line = readline("minishell $> ");
+		line = readline(prompt);
 		if (!line)
 		{
-			tputs("\033[A", 1, ft_putchar);
-			tputs("minishell $> exit\n", 1, ft_putchar);
+			tputs("exit\n", 1, ft_putchar);
 			return (0);
 		}
 		g_signal_int = 0;
