@@ -65,7 +65,7 @@ static int	wait_and_handle_signals(pid_t pid)
 	{
 		sig = WTERMSIG(status);
 		if (sig == SIGQUIT)
-			write(STDERR_FILENO, "Quit (core dumped)\n", 18);
+			write(STDERR_FILENO, "Quit (core dumped)\n", 19);
 		else if (sig == SIGINT)
 			write(STDERR_FILENO, "\n", 1);
 		return (128 + sig);

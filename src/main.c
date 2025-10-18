@@ -61,6 +61,8 @@ int	process_tty_prompt(t_ht *map)
 			tputs("exit\n", 1, ft_putchar);
 			return (0);
 		}
+		if (g_signal_int == 130)
+			ht_set(map, ft_strdup("?"), ft_strdup("130"));
 		g_signal_int = 0;
 		process_prompt(line, map);
 		unlink_heredocs();
