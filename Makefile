@@ -73,6 +73,9 @@ all: $(NAME)
 $(NAME): $(OBJ_DIR) $(LIBFT) $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) $(INCLUDES) $(LINKERS) -o $@
 
+bonus: all
+	@echo "Bonus already included in main build!✅"
+
 $(OBJ_DIR):
 	$(MKDIR) $@
 
@@ -92,8 +95,5 @@ fclean: clean
 	$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all
-
-bonus:
-	@echo "No bonus files defined."
 
 .PHONY: all clean fclean re bonus

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vapoghos <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/20 13:13:26 by vapoghos          #+#    #+#             */
+/*   Updated: 2025/10/22 12:53:33 by vapoghos         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 void	process_prompt(char *line, t_ht *map)
@@ -50,8 +62,8 @@ int	process_not_tty_prompt(t_ht *map)
 int	process_tty_prompt(t_ht *map)
 {
 	char		*line;
-	const char	*prompt = "\033[1;35m┌──[\033[1;36mMinishell\033[1;35m]\n"
-		"└─\033[1;32m$ \033[0m";
+	const char	*prompt = "\033[1;35m(\033[1;36mMinishell\033[1;35m)"
+		"─>\033[1;32m$ \033[0m";
 
 	while (1)
 	{

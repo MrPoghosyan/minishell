@@ -1,9 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vapoghos <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/20 13:14:36 by vapoghos          #+#    #+#             */
+/*   Updated: 2025/10/21 17:47:38 by vapoghos         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
 # define _POSIX_C_SOURCE 200809L
-
-extern int	g_signal_int;
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -16,16 +26,10 @@ extern int	g_signal_int;
 # include <limits.h>
 # include <sys/stat.h>
 # include <sys/errno.h>
+# include <sys/ioctl.h>
 # include <unistd.h>
-
-# ifdef __APPLE__
-#  include <readline/readline.h>
-#  include <readline/history.h>
-# else
-#  include <readline/readline.h>
-#  include <readline/history.h>
-# endif
-
+# include <readline/readline.h>
+# include <readline/history.h>
 # include "libft.h"
 # include "get_next_line_bonus.h"
 # include "enums.h"
@@ -36,5 +40,7 @@ extern int	g_signal_int;
 # include "ast.h"
 # include "builtins.h"
 # include "expansion.h"
+
+extern int	g_signal_int;
 
 #endif

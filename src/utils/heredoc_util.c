@@ -6,7 +6,7 @@
 /*   By: vahstepa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/05 09:27:16 by vahstepa          #+#    #+#             */
-/*   Updated: 2025/10/05 09:45:06 by vahstepa         ###   ########.fr       */
+/*   Updated: 2025/10/22 13:57:05 by vapoghos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,9 @@ int	handle_heredoc_status(int status, t_heredoc_ctx *ctx, t_ht *env)
 	free_char_arr(&ctx->target);
 	close(ctx->fd);
 	if ((WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
-			|| (WIFEXITED(status) && WEXITSTATUS(status) == 130))
+		|| (WIFEXITED(status) && WEXITSTATUS(status) == 130))
 	{
-		g_signal_int = 1;
+		g_signal_int = 130;
 		unlink(ctx->heredoc);
 		free(ctx->heredoc);
 		ht_set(env, ft_strdup("?"), ft_strdup("130"));

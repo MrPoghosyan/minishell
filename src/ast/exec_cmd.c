@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec_cmd.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vapoghos <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/20 13:34:31 by vapoghos          #+#    #+#             */
+/*   Updated: 2025/10/22 12:27:56 by vapoghos         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 int	find_first_non_empty(t_char_arr *expanded, t_ast **node, t_ht *env)
@@ -58,9 +70,11 @@ static int	wait_and_handle_signals(pid_t pid)
 	int	status;
 	int	sig;
 
-	ignore_signals();
-	waitpid(pid, &status, 0);
-	setup_signals();
+	if (waitpid(pid, &status, 0) == -1)
+	{
+		perror("waitpid");
+		return (-1);
+	}
 	if (WIFSIGNALED(status))
 	{
 		sig = WTERMSIG(status);
@@ -81,13 +95,16 @@ int	exec_cmd(t_ast **node, t_ht *env)
 	int				status;
 	struct termios	tmodes;
 
-	tcgetattr(STDIN_FILENO, &tmodes);
+	if (isatty(STDIN_FILENO))
+		tcgetattr(STDIN_FILENO, &tmodes);
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
 	pid = fork();
 	if (pid == 0)
 		child_process(node, env);
 	if (pid < 0)
 	{
-		perror("minishell: fork");
+		perror("minishell: for:k");
 		return (-1);
 	}
 	status = wait_and_handle_signals(pid);
